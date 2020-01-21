@@ -9,7 +9,7 @@ const News = () => {
   useEffect(()=>{
     axios
     
-      .get('https://newsapi.org/v2/top-headlines?apiKey=43602355d68e4c1389f73906760ed98f&language=en&category=business&country=us')
+      .get('https://newsapi.org/v2/everything?q=bitcoin&apiKey=43602355d68e4c1389f73906760ed98f')
       .then(res => {
         const articles = res.data.articles;
         // Set state with result

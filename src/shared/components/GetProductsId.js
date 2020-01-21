@@ -8,6 +8,7 @@ const GetProductsId = props =>{
         {props.productz.map(product=>(
             <ProductPrices
             productID = {product.id}
+            onUpdate={props.onUpdate}
             />
         ))}
         </Fragment>

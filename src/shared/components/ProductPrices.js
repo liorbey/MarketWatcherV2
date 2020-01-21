@@ -20,11 +20,11 @@ const ProductPrices = props => {
             console.log(error);
           });
 
-      },[price])
+      },[])
 
     return(
         <Fragment>
-        {!loading && <CryptoList price={price} name = {props.productID}/>}
+        {!loading && <CryptoList onUpdate={props.onUpdate} price={price} name = {props.productID}/>}
         </Fragment>
     );
 }

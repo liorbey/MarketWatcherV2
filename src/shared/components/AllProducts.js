@@ -4,7 +4,7 @@ import axios from 'axios';
 
 
 
-const AllProducts = () => {
+const AllProducts = props => {
     const [products, setProducts] = useState([""])
     const [loading, setLoading] = useState()
 
@@ -13,22 +13,21 @@ const AllProducts = () => {
         axios
           .get('https://api.pro.coinbase.com/products')
           .then(res => {
-            const result = res.data.splice(0,5)
+            const result = res.data.splice(0,30)
             setProducts(result)
             setLoading(false)
         })
           .catch(error => {
             console.log(error);
           });
-      },[products])
+      },[setProducts])
 
     return(
         <Fragment>
-            {loading &&
             <GetProductsId
             productz = {products}
+            onUpdate={props.onUpdate}
             />
-            }
         </Fragment>
     );
 }

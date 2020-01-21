@@ -7,6 +7,7 @@ const CryptoList = (props) => {
                 <CryptoItem
                 price={props.price}
                 name = {props.name}
+                onUpdate={props.onUpdate}
                 />
            </Fragment>
     );

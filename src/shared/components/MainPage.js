@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import CryptoList from "./CryptoList";
 import StickyHeader from "../navigation/StickyHeader";
 import Chart from './Chart';
@@ -6,111 +6,51 @@ import '../../styles/_MainPage.scss';
 import AllProducts from "./AllProducts";
 import News from '../../news/News';
 
-class MainPage extends React.Component {
-  constructor(props){
-    super(props)
-    this.state={
-      footerOverflow: true,
-      price: [],
-      isLoading: false,
-      lineChartData: {
-      labels: [],
-      datasets: [
-        {
-          type: "line",
-          backgroundColor: "transparent",
-          pointBackgroundColor: "transparent",
-          pointBorderColor: "rgb(255,255,255,0.1)",
-          pointHoverBackgroundColor: "white",
-          pointHoverBorderColor	: "white",
-          borderColor: "#0000ff",
-          
-          data: []
-        }
-      ]
-    },
-    }
-    this.handleScroll = this.handleScroll.bind(this);
-    window.addEventListener('scroll', this.handleScroll);
-  }
 
-  handleScroll(e) {
-    if (window.scrollY >= 3200 && !this.state.footerOverflow) {
-      this.setState({ footerOverflow: true });
-    } else if (window.scrollY <= 3200 && this.state.footerOverflow) {
-      this.setState({ footerOverflow: false });
+const MainPage = () =>{
+  const [footerOverFlow, setfooterOverFlow] = useState();
+  const [cryptoName, setcryptoName] = useState("BTC-USD")
+  const [propChanged, setpropChanged] = useState(true)
+  const [propChangedTwo, setpropChangedTwo] = useState(true)  
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+
+    // this will clean up the event every time the component is re-rendered
+    return function cleanup() {
+        window.addEventListener('scroll', handleScroll);
+    };
+  });
+
+  const handleScroll= (e) => {
+    if (window.scrollY >= 300 && !footerOverFlow) {
+      setfooterOverFlow(true);
+    } else if (window.scrollY <= 300 && footerOverFlow) {
+      setfooterOverFlow(false);
     }
   }
 
-  componentDidMount() {
-    setTimeout(()=>{
-      this.setState({ isLoading: true });
-    },300)
-    const subscribe = {
-      type: "subscribe",
-      channels: [
-        {
-          name: "ticker",
-          product_ids: ["BTC-USD"]
-        }
-      ]
-    };
 
-    this.ws = new WebSocket("wss://ws-feed.pro.coinbase.com");
-
-    this.ws.onopen = () => {
-      this.ws.send(JSON.stringify(subscribe));
-    };
-
-    this.ws.onmessage = e => {
-      const value = JSON.parse(e.data);
-      if (value.type !== "ticker") {
-        return;
-      }
-
-      const oldBtcDataSet = this.state.lineChartData.datasets[0];
-      const newBtcDataSet = { ...oldBtcDataSet };
-      newBtcDataSet.data.push(value.price);
-
-      const newChartData = {
-        ...this.state.lineChartData,
-        datasets: [newBtcDataSet],
-        labels: this.state.lineChartData.labels.concat(
-          new Date().toLocaleTimeString()
-        )
-      };
-      this.setState({ lineChartData: newChartData, isLoading: false });
-
-      this.setState({price: value.price})
-    };
-  }
-
-  componentWillUnmount() {
-    this.ws.close();
-  }
-
-  render() {
-    const { isLoading } = this.state;
-
-    if (isLoading) {
-      return <p>one second!</p>
-    }
-
+  const onUpdate = (val) => {
+    setcryptoName(val);
+    setpropChanged(!propChanged);
+  };
+    
   return(
     <div>
       <StickyHeader/>
-      <section className="user-home" onScroll={this.handleScroll}>
-          <main onScroll={this.handleScroll} >
+      <section className="user-home">
+          <main onScroll={handleScroll} >
           <div >
-            <Chart data={this.state.lineChartData}/>
+            { propChanged && <Chart name = {cryptoName}/>}
             <News/>
             </div>
           </main>
           <aside className = "crypto-names-container">
-            <div className={this.state.footerOverflow ? "crypto-names overflow" : "crypto-names"}>
-              <h4 className= "heading" >Watchlist</h4>
+            <div className={footerOverFlow ? "crypto-names overflow" : "crypto-names"}>
+              <h4 className= "heading">Watchlist</h4>
                   {/*<Search className="heading"/>*/}
-                      <AllProducts/>
+                      <AllProducts onUpdate={onUpdate}/>
+              <p className= "buttom-note">Realtime charts are processed based off buy & sell orders. Due to a lack of liquidity, & small order books - some instruments may take a while to load.</p>
             </div>
         </aside>
       </section>
@@ -118,8 +58,6 @@ class MainPage extends React.Component {
 
   );
 
-
-};
 }
 
 export default MainPage;
